@@ -1,0 +1,863 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Sistema de Detección de Accidentes</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #2D2D30;
+    color: #E0E0E0;
+}
+
+QWidget {
+    background-color: #2D2D30;
+    color: #E0E0E0;
+}
+
+QPushButton {
+    background-color: #3E3E42;
+    color: #E0E0E0;
+    border: 1px solid #555555;
+    border-radius: 4px;
+    padding: 5px 10px;
+    min-height: 25px;
+}
+
+QPushButton:hover {
+    background-color: #505054;
+}
+
+QPushButton:pressed {
+    background-color: #2A2A2A;
+}
+
+QLabel {
+    color: #E0E0E0;
+}
+
+QTableView {
+    background-color: #252526;
+    color: #E0E0E0;
+    gridline-color: #333333;
+    selection-background-color: #3E3E42;
+    selection-color: #FFFFFF;
+    border: 1px solid #444444;
+}
+
+QHeaderView::section {
+    background-color: #3E3E42;
+    color: #E0E0E0;
+    padding: 4px;
+    border: 1px solid #444444;
+}
+
+QLineEdit, QTextEdit, QComboBox {
+    background-color: #3E3E42;
+    color: #E0E0E0;
+    border: 1px solid #555555;
+    border-radius: 2px;
+    padding: 2px;
+}
+
+QStackedWidget {
+    background-color: #2D2D30;
+}
+
+#navegacionFrame {
+    background-color: #252526;
+    border-top: 1px solid #444444;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="camarasPage">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLabel" name="camarasTitulo">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Vista de Cámaras</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="camarasGrid">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QFrame" name="camara1Frame">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: #222224; border: 1px solid #444444;</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="QPushButton" name="agregarCamara1">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QFrame" name="camara2Frame">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: #222224; border: 1px solid #444444;</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <widget class="QPushButton" name="agregarCamara2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QFrame" name="camara3Frame">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: #222224; border: 1px solid #444444;</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <item>
+               <widget class="QPushButton" name="agregarCamara3">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QFrame" name="camara4Frame">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: #222224; border: 1px solid #444444;</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QPushButton" name="agregarCamara4">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="registrosPage">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="registrosTitulo">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Vista de Registros</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="registrosTable">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="verDetallesRegistroBtn">
+          <property name="text">
+           <string>Ver Detalles del Registro Seleccionado</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="detallesRegistroPage">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QLabel" name="detallesTitulo">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Detalles del Registro</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="videoFrame">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: #222224; border: 1px solid #444444;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_10">
+           <item>
+            <widget class="QLabel" name="videoLabel">
+             <property name="text">
+              <string>Video del Accidente</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="detallesGroupBox">
+          <property name="title">
+           <string>Información del Registro</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="fechaLabel">
+             <property name="text">
+              <string>Fecha del Accidente:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="fechaValor">
+             <property name="text">
+              <string>[Fecha]</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="archivoLabel">
+             <property name="text">
+              <string>Nombre del Archivo:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="archivoValor">
+             <property name="text">
+              <string>[Archivo]</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="localizacionLabel">
+             <property name="text">
+              <string>Localización:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="localizacionValor">
+             <property name="text">
+              <string>[Localización]</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="descripcionLabel">
+             <property name="text">
+              <string>Descripción:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="descripcionValor">
+             <property name="text">
+              <string>[Descripción]</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     <widget class="QWidget" name="subirVideoPage">
+ <layout class="QVBoxLayout" name="verticalLayout_5">
+  <item>
+   <widget class="QLabel" name="subirVideoTitulo">
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Subir Video</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </item>
+  <item>
+   <spacer name="verticalSpacer">
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="sizeHint" stdset="0">
+     <size>
+      <width>20</width>
+      <height>20</height>
+     </size>
+    </property>
+   </spacer>
+  </item>
+  <item>
+   <widget class="QLabel" name="archivoSeleccionadoLabel">
+    <property name="text">
+     <string>Ningún archivo seleccionado</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </item>
+  <item>
+   <widget class="QPushButton" name="seleccionarVideoBtn">
+    <property name="text">
+     <string>Seleccionar Video...</string>
+    </property>
+   </widget>
+  </item>
+  <item>
+   <widget class="QFrame" name="accionesBotonesFrame">
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="subirVideoBtn">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Subir Video</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelarSubidaBtn">
+       <property name="text">
+        <string>Cancelar</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </item>
+
+  <!-- NUEVA SECCIÓN: Vista previa del video subido -->
+  <item>
+   <widget class="QLabel" name="vistaPreviaVideo">
+    <property name="minimumSize">
+     <size>
+      <width>320</width>
+      <height>180</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="text">
+     <string>Vista previa del video</string>
+    </property>
+   </widget>
+  </item>
+
+  <!-- NUEVA SECCIÓN: Lista de detecciones -->
+  <item>
+   <widget class="QGroupBox" name="grupoDetecciones">
+    <property name="title">
+     <string>Detecciones</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayoutDetecciones">
+     <item>
+      <widget class="QScrollArea" name="scrollDetecciones">
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaContenido">
+        <layout class="QVBoxLayout" name="layoutContenidoDetecciones">
+         <!-- Aquí se agregan dinámicamente los QLabel con detecciones -->
+         <item>
+          <widget class="QLabel" name="deteccionEjemplo">
+           <property name="text">
+            <string>Ejemplo: Accidente detectado en el segundo 12</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </item>
+
+  <!-- NUEVA SECCIÓN: Botón de descarga -->
+  <item>
+   <widget class="QPushButton" name="descargarDeteccionesBtn">
+    <property name="text">
+     <string>Descargar Resultados</string>
+    </property>
+   </widget>
+  </item>
+
+  <item>
+   <spacer name="verticalSpacer_2">
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="sizeHint" stdset="0">
+     <size>
+      <width>20</width>
+      <height>20</height>
+     </size>
+    </property>
+   </spacer>
+  </item>
+ </layout>
+</widget>
+      <widget class="QWidget" name="configuracionPage">
+       <layout class="QVBoxLayout" name="verticalLayout_11">
+        <item>
+         <widget class="QLabel" name="configuracionTitulo">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Configuración del Sistema</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>760</width>
+             <height>409</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item>
+             <widget class="QGroupBox" name="configuracionGeneral">
+              <property name="title">
+               <string>Configuración General</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_2">
+               <item row="0" column="0">
+                <widget class="QLabel" name="rutaAlmacenamientoLabel">
+                 <property name="text">
+                  <string>Ruta de Almacenamiento:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="rutaAlmacenamientoEdit"/>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="formatoVideoLabel">
+                 <property name="text">
+                  <string>Formato de Video Preferido:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="formatoVideoCombo">
+                 <item>
+                  <property name="text">
+                   <string>MP4</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AVI</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>MKV</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="tiempoGrabacionLabel">
+                 <property name="text">
+                  <string>Tiempo de Grabación (segundos):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSpinBox" name="tiempoGrabacionSpin">
+                 <property name="minimum">
+                  <number>5</number>
+                 </property>
+                 <property name="maximum">
+                  <number>300</number>
+                 </property>
+                 <property name="value">
+                  <number>30</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="configuracionDeteccion">
+              <property name="title">
+               <string>Configuración de Detección</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_3">
+               <item row="0" column="0">
+                <widget class="QLabel" name="sensibilidadLabel">
+                 <property name="text">
+                  <string>Sensibilidad de Detección:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSlider" name="sensibilidadSlider">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="grabarAnteriorLabel">
+                 <property name="text">
+                  <string>Grabar segundos previos al accidente:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="grabarAnteriorSpin">
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>60</number>
+                 </property>
+                 <property name="value">
+                  <number>10</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="notificacionesLabel">
+                 <property name="text">
+                  <string>Activar Notificaciones:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="notificacionesCheck">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="configuracionRTSP">
+              <property name="title">
+               <string>Configuración RTSP Predeterminada</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_4">
+               <item row="0" column="0">
+                <widget class="QLabel" name="rtspPuertoLabel">
+                 <property name="text">
+                  <string>Puerto RTSP Predeterminado:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="rtspPuertoEdit">
+                 <property name="text">
+                  <string>554</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="usuarioPredeterminadoLabel">
+                 <property name="text">
+                  <string>Usuario Predeterminado:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="usuarioPredeterminadoEdit">
+                 <property name="text">
+                  <string>admin</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="passwordPredeterminadoLabel">
+                 <property name="text">
+                  <string>Contraseña Predeterminada:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="passwordPredeterminadoEdit">
+                 <property name="text">
+                  <string>admin</string>
+                 </property>
+                 <property name="echoMode">
+                  <enum>QLineEdit::Password</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="guardarConfiguracionBtn">
+          <property name="text">
+           <string>Guardar Configuración</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="navegacionFrame">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="verCamarasBtn">
+         <property name="text">
+          <string>Ver Cámaras</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="verRegistrosBtn">
+         <property name="text">
+          <string>Ver Registros</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="subirVideoBtn_nav">
+         <property name="text">
+          <string>Subir Video</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="detallesRegistroBtn_nav">
+         <property name="text">
+          <string>Detalles de Registro</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="configuracionBtn">
+         <property name="text">
+          <string>Configuración</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="salirBtn">
+         <property name="text">
+          <string>Salir</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

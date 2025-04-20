@@ -1,0 +1,9 @@
+ultralytics>=8.0.0
+opencv-python>=4.5.0
+numpy>=1.19.0
+torch>=1.10.0
+pyqt5>=5.15.0
+mysql-connector-python>=8.0.0
+python-dotenv>=1.0.0
+reportlab>=3.6.0
+matplotlib>=3.0.0
