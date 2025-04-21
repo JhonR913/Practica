@@ -7,6 +7,7 @@ from PyQt5.QtGui import QPixmap, QImage
 from gui.interfaz import Ui_MainWindow
 from traffic_accident_detector.detector import AccidentDetector
 from traffic_accident_detector.utils.file_system import ensure_output_folder_exists
+from PyQt5 import QtWidgets, QtWebEngineWidgets, uic
 
 # Función que se ejecuta cuando se detecta un accidente
 def on_accident(path: str):

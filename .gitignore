@@ -1,3 +1,9 @@
 .env
 venv/
 env/
+yolov8/train/images/*
+yolov8/train/labels/*
+yolov8/valid/images/*
+yolov8/valid/labels/*
+yolov8/test/images/*
+yolov8/test/labels/*

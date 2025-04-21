@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>664</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -83,7 +83,7 @@ QStackedWidget {
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="camarasPage">
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -412,10 +412,170 @@ QStackedWidget {
         </item>
        </layout>
       </widget>
-     <widget class="QWidget" name="subirVideoPage">
- <layout class="QVBoxLayout" name="verticalLayout_5">
+      <widget class="QWidget" name="subirVideoPage">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QLabel" name="subirVideoTitulo">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Subir Video</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="archivoSeleccionadoLabel">
+          <property name="text">
+           <string>Ningún archivo seleccionado</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="seleccionarVideoBtn">
+          <property name="text">
+           <string>Seleccionar Video...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="accionesBotonesFrame">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QPushButton" name="subirVideoBtn">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Subir Video</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="cancelarSubidaBtn">
+             <property name="text">
+              <string>Cancelar</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="vistaPreviaVideo">
+          <property name="minimumSize">
+           <size>
+            <width>320</width>
+            <height>180</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="text">
+           <string>Vista previa del video</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="grupoDetecciones">
+          <property name="title">
+           <string>Detecciones</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayoutDetecciones">
+           <item>
+            <widget class="QScrollArea" name="scrollDetecciones">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaContenido">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>294</width>
+                <height>38</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="layoutContenidoDetecciones">
+               <item>
+                <widget class="QLabel" name="deteccionEjemplo">
+                 <property name="text">
+                  <string>Ejemplo: Accidente detectado en el segundo 12</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="descargarDeteccionesBtn">
+          <property name="text">
+           <string>Descargar Resultados</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+<widget class="QWidget" name="mapaPage">
+ <layout class="QVBoxLayout" name="verticalLayout_14">
   <item>
-   <widget class="QLabel" name="subirVideoTitulo">
+   <widget class="QLabel" name="mapaTitulo">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
     <property name="font">
      <font>
       <pointsize>14</pointsize>
@@ -424,7 +584,7 @@ QStackedWidget {
      </font>
     </property>
     <property name="text">
-     <string>Subir Video</string>
+     <string>Mapa</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -432,137 +592,14 @@ QStackedWidget {
    </widget>
   </item>
   <item>
-   <spacer name="verticalSpacer">
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-    <property name="sizeHint" stdset="0">
-     <size>
-      <width>20</width>
-      <height>20</height>
-     </size>
-    </property>
-   </spacer>
-  </item>
-  <item>
-   <widget class="QLabel" name="archivoSeleccionadoLabel">
-    <property name="text">
-     <string>Ningún archivo seleccionado</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
+   <widget class="QWidget" name="mapaWidget" native="true">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
    </widget>
-  </item>
-  <item>
-   <widget class="QPushButton" name="seleccionarVideoBtn">
-    <property name="text">
-     <string>Seleccionar Video...</string>
-    </property>
-   </widget>
-  </item>
-  <item>
-   <widget class="QFrame" name="accionesBotonesFrame">
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QPushButton" name="subirVideoBtn">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Subir Video</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelarSubidaBtn">
-       <property name="text">
-        <string>Cancelar</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </item>
-
-  <!-- NUEVA SECCIÓN: Vista previa del video subido -->
-  <item>
-   <widget class="QLabel" name="vistaPreviaVideo">
-    <property name="minimumSize">
-     <size>
-      <width>320</width>
-      <height>180</height>
-     </size>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="text">
-     <string>Vista previa del video</string>
-    </property>
-   </widget>
-  </item>
-
-  <!-- NUEVA SECCIÓN: Lista de detecciones -->
-  <item>
-   <widget class="QGroupBox" name="grupoDetecciones">
-    <property name="title">
-     <string>Detecciones</string>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayoutDetecciones">
-     <item>
-      <widget class="QScrollArea" name="scrollDetecciones">
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="scrollAreaContenido">
-        <layout class="QVBoxLayout" name="layoutContenidoDetecciones">
-         <!-- Aquí se agregan dinámicamente los QLabel con detecciones -->
-         <item>
-          <widget class="QLabel" name="deteccionEjemplo">
-           <property name="text">
-            <string>Ejemplo: Accidente detectado en el segundo 12</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </item>
-
-  <!-- NUEVA SECCIÓN: Botón de descarga -->
-  <item>
-   <widget class="QPushButton" name="descargarDeteccionesBtn">
-    <property name="text">
-     <string>Descargar Resultados</string>
-    </property>
-   </widget>
-  </item>
-
-  <item>
-   <spacer name="verticalSpacer_2">
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-    <property name="sizeHint" stdset="0">
-     <size>
-      <width>20</width>
-      <height>20</height>
-     </size>
-    </property>
-   </spacer>
   </item>
  </layout>
 </widget>
@@ -595,8 +632,8 @@ QStackedWidget {
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>760</width>
-             <height>409</height>
+             <width>754</width>
+             <height>457</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_12">
@@ -834,6 +871,13 @@ QStackedWidget {
         <widget class="QPushButton" name="detallesRegistroBtn_nav">
          <property name="text">
           <string>Detalles de Registro</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="MapaBtn">
+         <property name="text">
+          <string>Mapa</string>
          </property>
         </widget>
        </item>

@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 7
+names: ['Accident', 'NoAcciednt', 'car', 'mild', 'moderate', 'motor cycle', 'severe']
+
+roboflow:
+  workspace: self-ixih1
+  project: accident-detection-qgglm
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/self-ixih1/accident-detection-qgglm/dataset/3
