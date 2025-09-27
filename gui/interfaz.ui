@@ -254,6 +254,133 @@ QStackedWidget {
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="agregarCamaraPage">
+       <layout class="QVBoxLayout" name="verticalLayout_15">
+        <item>
+         <widget class="QLabel" name="agregarCamaraTitulo">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Agregar Camara</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QScrollArea" name="scrollArea_2">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_2">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>754</width>
+             <height>457</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <widget class="QGroupBox" name="configuracionRTSP_2">
+              <property name="title">
+               <string>Configuración RTSP Predeterminada</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_7">
+               <item row="0" column="0">
+                <widget class="QLabel" name="direccionIpLabel">
+                 <property name="text">
+                  <string>Dirección IP:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="direccionIpEdit">
+                 <property name="placeholderText">
+                  <string>192.168.1.30</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="rtspPuertoLabel_2">
+                 <property name="text">
+                  <string>Puerto RTSP Predeterminado:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="rtspPuertoEdit_2">
+                 <property name="text">
+                  <string>554</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="usuarioPredeterminadoLabel_2">
+                 <property name="text">
+                  <string>Usuario:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="usuarioEdit">
+                 <property name="text">
+                  <string>admin</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="passwordPredeterminadoLabel_2">
+                 <property name="text">
+                  <string>Contraseña:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QLineEdit" name="passwordEdit">
+                 <property name="text">
+                  <string>admin</string>
+                 </property>
+                 <property name="echoMode">
+                  <enum>QLineEdit::Password</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="ubicacionCamaraGeneral">
+              <property name="title">
+               <string>Ubicacion De la Camara</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_5">
+               <item row="0" column="1">
+                <widget class="QWidget" name="mapaCamaraWidget" native="true"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="agregarCamaraBtn">
+          <property name="text">
+           <string>Agregar Camara</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="registrosPage">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
@@ -473,10 +600,10 @@ QStackedWidget {
            <item>
             <widget class="QPushButton" name="subirVideoBtn">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
-              <string>Subir Video</string>
+              <string>Continuar</string>
              </property>
             </widget>
            </item>
@@ -525,8 +652,8 @@ QStackedWidget {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>294</width>
-                <height>38</height>
+                <width>730</width>
+                <height>85</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="layoutContenidoDetecciones">
@@ -566,43 +693,43 @@ QStackedWidget {
         </item>
        </layout>
       </widget>
-<widget class="QWidget" name="mapaPage">
- <layout class="QVBoxLayout" name="verticalLayout_14">
-  <item>
-   <widget class="QLabel" name="mapaTitulo">
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Mapa</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-  </item>
-  <item>
-   <widget class="QWidget" name="mapaWidget" native="true">
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-   </widget>
-  </item>
- </layout>
-</widget>
+      <widget class="QWidget" name="mapaPage">
+       <layout class="QVBoxLayout" name="verticalLayout_14">
+        <item>
+         <widget class="QLabel" name="mapaTitulo">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Mapa</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="mapaWidget" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="configuracionPage">
        <layout class="QVBoxLayout" name="verticalLayout_11">
         <item>
@@ -829,6 +956,53 @@ QStackedWidget {
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="camaraGrandePage">
+       <layout class="QVBoxLayout" name="verticalLayout_17">
+        <item>
+         <widget class="QFrame" name="videoFrame_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: #222224; border: 1px solid #444444;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_16">
+           <item>
+            <widget class="QLabel" name="videoLabel_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
@@ -864,13 +1038,6 @@ QStackedWidget {
         <widget class="QPushButton" name="subirVideoBtn_nav">
          <property name="text">
           <string>Subir Video</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="detallesRegistroBtn_nav">
-         <property name="text">
-          <string>Detalles de Registro</string>
          </property>
         </widget>
        </item>

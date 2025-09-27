@@ -1,12 +1,137 @@
-
-
+import time
+import mysql.connector
+from mysql.connector import Error
+import os
+from dotenv import load_dotenv
+import traceback
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtWidgets, QtWebEngineWidgets, uic
+from PyQt5 import QtWidgets, QtCore, QtMultimedia, QtMultimediaWidgets
+import cv2
+from PyQt5.QtGui import QImage, QPixmap
+import decimal
+from PyQt5 import QtCore, QtGui, QtWidgets
 
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+
+
+def connect_to_database():
+    return mysql.connector.connect(
+        host=os.getenv('DB_HOST'),
+        port=int(os.getenv('DB_PORT')),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
+    )
+    
+def guardar_camara(ip, puerto, usuario, password, latitud, longitud, url_rtsp):
+    import decimal
+    import mysql.connector
+    import os
+
+    try:
+        lat_decimal = decimal.Decimal(str(latitud))
+        lon_decimal = decimal.Decimal(str(longitud))
+    except decimal.InvalidOperation as e:
+        print(f"Error al convertir coordenadas a decimal: {e}")
+        return
+
+    conexion = None
+    try:
+        conexion = mysql.connector.connect(
+            host=os.getenv('DB_HOST'),
+            port=int(os.getenv('DB_PORT')),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            database=os.getenv('DB_NAME')
+        )
+        if conexion.is_connected():
+            cursor = conexion.cursor()
+            sql = """
+                INSERT INTO camaras (ip, puerto, usuario, password, latitud, longitud, url_rtsp)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+            valores = (ip, puerto, usuario, password, lat_decimal, lon_decimal, url_rtsp)
+            cursor.execute(sql, valores)
+            conexion.commit()
+            cursor.close()
+    except Exception as ex:
+        print(f"Error inesperado durante conexión o inserción: {ex}")
+    finally:
+        if conexion and conexion.is_connected():
+            conexion.close()
+
+class StreamThread(QtCore.QThread):
+    change_pixmap = QtCore.pyqtSignal(QtGui.QImage)
+    connection_failed = QtCore.pyqtSignal(str)
+
+    def __init__(self, url):
+        super().__init__()
+        self.url = url
+        self.running = True
+        self.skip_frames = 2
+        self.frame_count = 0
+        self.last_frame_time = time.time()
+        self.fps_limit = 30
+
+    def run(self):
+        print(f"StreamThread intentando abrir RTSP: {self.url}")
+        cap = cv2.VideoCapture(self.url, cv2.CAP_FFMPEG)
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+        os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp|analyzeduration;0|fflags;nobuffer|max_delay;500000"
+
+        if not cap.isOpened():
+            print("No se pudo abrir el stream RTSP")
+            self.connection_failed.emit(
+                "No se pudo abrir el stream RTSP.\nRevisa la IP, puerto o credenciales."
+            )
+            return
+
+        received_frames = 0
+        while self.running:
+            ret, frame = cap.read()
+            if ret:
+                self.frame_count += 1
+                received_frames += 1
+                current_time = time.time()
+                elapsed = current_time - self.last_frame_time
+                if elapsed < (1.0 / self.fps_limit):
+                    continue
+                if self.frame_count % (self.skip_frames + 1) != 0:
+                    continue
+                rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = rgb_image.shape
+                bytes_per_line = ch * w
+                if w > 1280:
+                    scale = 1280 / w
+                    new_width = int(w * scale)
+                    new_height = int(h * scale)
+                    rgb_image = cv2.resize(rgb_image, (new_width, new_height), interpolation=cv2.INTER_AREA)
+                    h, w = new_height, new_width
+                    bytes_per_line = ch * w
+                qt_image = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+                self.change_pixmap.emit(qt_image)
+                self.last_frame_time = current_time
+            else:
+                QtCore.QThread.msleep(50)
+                if received_frames == 0:
+                    print("Stream abierto pero sin frames recibidos")
+                    self.connection_failed.emit("Se abrió el stream, pero no se reciben frames.")
+                    break
+        cap.release()
+        print("StreamThread terminó")
+
+    def stop(self):
+        print("Deteniendo StreamThread")
+        self.running = False
+        self.quit()
+        self.wait()
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        self.rtsp_thread = None
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 664)
         MainWindow.setStyleSheet("QMainWindow {\n"
@@ -167,6 +292,71 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.camara4Frame, 1, 1, 1, 1)
         self.verticalLayout_2.addWidget(self.camarasGrid)
         self.stackedWidget.addWidget(self.camarasPage)
+        self.agregarCamaraPage = QtWidgets.QWidget()
+        self.agregarCamaraPage.setObjectName("agregarCamaraPage")
+        self.verticalLayout_15 = QtWidgets.QVBoxLayout(self.agregarCamaraPage)
+        self.verticalLayout_15.setObjectName("verticalLayout_15")
+        self.agregarCamaraTitulo = QtWidgets.QLabel(self.agregarCamaraPage)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        font.setWeight(75)
+        self.agregarCamaraTitulo.setFont(font)
+        self.agregarCamaraTitulo.setAlignment(QtCore.Qt.AlignCenter)
+        self.agregarCamaraTitulo.setObjectName("agregarCamaraTitulo")
+        self.verticalLayout_15.addWidget(self.agregarCamaraTitulo)
+        self.scrollArea_2 = QtWidgets.QScrollArea(self.agregarCamaraPage)
+        self.scrollArea_2.setWidgetResizable(True)
+        self.scrollArea_2.setObjectName("scrollArea_2")
+        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 754, 457))
+        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
+        self.verticalLayout_13 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_2)
+        self.verticalLayout_13.setObjectName("verticalLayout_13")
+        self.configuracionRTSP_2 = QtWidgets.QGroupBox(self.scrollAreaWidgetContents_2)
+        self.configuracionRTSP_2.setObjectName("configuracionRTSP_2")
+        self.formLayout_7 = QtWidgets.QFormLayout(self.configuracionRTSP_2)
+        self.formLayout_7.setObjectName("formLayout_7")
+        self.direccionIpLabel = QtWidgets.QLabel(self.configuracionRTSP_2)
+        self.direccionIpLabel.setObjectName("direccionIpLabel")
+        self.formLayout_7.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.direccionIpLabel)
+        self.direccionIpEdit = QtWidgets.QLineEdit(self.configuracionRTSP_2)
+        self.direccionIpEdit.setObjectName("direccionIpEdit")
+        self.formLayout_7.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.direccionIpEdit)
+        self.rtspPuertoLabel_2 = QtWidgets.QLabel(self.configuracionRTSP_2)
+        self.rtspPuertoLabel_2.setObjectName("rtspPuertoLabel_2")
+        self.formLayout_7.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.rtspPuertoLabel_2)
+        self.rtspPuertoEdit_2 = QtWidgets.QLineEdit(self.configuracionRTSP_2)
+        self.rtspPuertoEdit_2.setObjectName("rtspPuertoEdit_2")
+        self.formLayout_7.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.rtspPuertoEdit_2)
+        self.usuarioPredeterminadoLabel_2 = QtWidgets.QLabel(self.configuracionRTSP_2)
+        self.usuarioPredeterminadoLabel_2.setObjectName("usuarioPredeterminadoLabel_2")
+        self.formLayout_7.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.usuarioPredeterminadoLabel_2)
+        self.usuarioEdit = QtWidgets.QLineEdit(self.configuracionRTSP_2)
+        self.usuarioEdit.setObjectName("usuarioEdit")
+        self.formLayout_7.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.usuarioEdit)
+        self.passwordPredeterminadoLabel_2 = QtWidgets.QLabel(self.configuracionRTSP_2)
+        self.passwordPredeterminadoLabel_2.setObjectName("passwordPredeterminadoLabel_2")
+        self.formLayout_7.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.passwordPredeterminadoLabel_2)
+        self.passwordEdit = QtWidgets.QLineEdit(self.configuracionRTSP_2)
+        self.passwordEdit.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.passwordEdit.setObjectName("passwordEdit")
+        self.formLayout_7.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.passwordEdit)
+        self.verticalLayout_13.addWidget(self.configuracionRTSP_2)
+        self.ubicacionCamaraGeneral = QtWidgets.QGroupBox(self.scrollAreaWidgetContents_2)
+        self.ubicacionCamaraGeneral.setObjectName("ubicacionCamaraGeneral")
+        self.formLayout_5 = QtWidgets.QFormLayout(self.ubicacionCamaraGeneral)
+        self.formLayout_5.setObjectName("formLayout_5")
+        self.mapaCamaraWidget = QtWidgets.QWidget(self.ubicacionCamaraGeneral)
+        self.mapaCamaraWidget.setObjectName("mapaCamaraWidget")
+        self.formLayout_5.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.mapaCamaraWidget)
+        self.verticalLayout_13.addWidget(self.ubicacionCamaraGeneral)
+        self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
+        self.verticalLayout_15.addWidget(self.scrollArea_2)
+        self.agregarCamaraBtn = QtWidgets.QPushButton(self.agregarCamaraPage)
+        self.agregarCamaraBtn.setObjectName("agregarCamaraBtn")
+        self.verticalLayout_15.addWidget(self.agregarCamaraBtn)
+        self.stackedWidget.addWidget(self.agregarCamaraPage)
         self.registrosPage = QtWidgets.QWidget()
         self.registrosPage.setObjectName("registrosPage")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.registrosPage)
@@ -275,7 +465,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.accionesBotonesFrame)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.subirVideoBtn = QtWidgets.QPushButton(self.accionesBotonesFrame)
-        self.subirVideoBtn.setEnabled(False)
+        self.subirVideoBtn.setEnabled(True)
         self.subirVideoBtn.setObjectName("subirVideoBtn")
         self.horizontalLayout_2.addWidget(self.subirVideoBtn)
         self.cancelarSubidaBtn = QtWidgets.QPushButton(self.accionesBotonesFrame)
@@ -296,7 +486,7 @@ class Ui_MainWindow(object):
         self.scrollDetecciones.setWidgetResizable(True)
         self.scrollDetecciones.setObjectName("scrollDetecciones")
         self.scrollAreaContenido = QtWidgets.QWidget()
-        self.scrollAreaContenido.setGeometry(QtCore.QRect(0, 0, 294, 38))
+        self.scrollAreaContenido.setGeometry(QtCore.QRect(0, 0, 730, 85))
         self.scrollAreaContenido.setObjectName("scrollAreaContenido")
         self.layoutContenidoDetecciones = QtWidgets.QVBoxLayout(self.scrollAreaContenido)
         self.layoutContenidoDetecciones.setObjectName("layoutContenidoDetecciones")
@@ -448,6 +638,35 @@ class Ui_MainWindow(object):
         self.guardarConfiguracionBtn.setObjectName("guardarConfiguracionBtn")
         self.verticalLayout_11.addWidget(self.guardarConfiguracionBtn)
         self.stackedWidget.addWidget(self.configuracionPage)
+        self.camaraGrandePage = QtWidgets.QWidget()
+        self.camaraGrandePage.setObjectName("camaraGrandePage")
+        self.verticalLayout_17 = QtWidgets.QVBoxLayout(self.camaraGrandePage)
+        self.verticalLayout_17.setObjectName("verticalLayout_17")
+        self.videoFrame_2 = QtWidgets.QFrame(self.camaraGrandePage)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.videoFrame_2.sizePolicy().hasHeightForWidth())
+        self.videoFrame_2.setSizePolicy(sizePolicy)
+        self.videoFrame_2.setMinimumSize(QtCore.QSize(0, 200))
+        self.videoFrame_2.setStyleSheet("background-color: #222224; border: 1px solid #444444;")
+        self.videoFrame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.videoFrame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.videoFrame_2.setObjectName("videoFrame_2")
+        self.verticalLayout_16 = QtWidgets.QVBoxLayout(self.videoFrame_2)
+        self.verticalLayout_16.setObjectName("verticalLayout_16")
+        self.videoLabel_2 = QtWidgets.QLabel(self.videoFrame_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.videoLabel_2.sizePolicy().hasHeightForWidth())
+        self.videoLabel_2.setSizePolicy(sizePolicy)
+        self.videoLabel_2.setText("")
+        self.videoLabel_2.setAlignment(QtCore.Qt.AlignJustify|QtCore.Qt.AlignVCenter)
+        self.videoLabel_2.setObjectName("videoLabel_2")
+        self.verticalLayout_16.addWidget(self.videoLabel_2)
+        self.verticalLayout_17.addWidget(self.videoFrame_2)
+        self.stackedWidget.addWidget(self.camaraGrandePage)
         self.verticalLayout.addWidget(self.stackedWidget)
         self.navegacionFrame = QtWidgets.QFrame(self.centralwidget)
         self.navegacionFrame.setMinimumSize(QtCore.QSize(0, 50))
@@ -465,9 +684,6 @@ class Ui_MainWindow(object):
         self.subirVideoBtn_nav = QtWidgets.QPushButton(self.navegacionFrame)
         self.subirVideoBtn_nav.setObjectName("subirVideoBtn_nav")
         self.horizontalLayout.addWidget(self.subirVideoBtn_nav)
-        self.detallesRegistroBtn_nav = QtWidgets.QPushButton(self.navegacionFrame)
-        self.detallesRegistroBtn_nav.setObjectName("detallesRegistroBtn_nav")
-        self.horizontalLayout.addWidget(self.detallesRegistroBtn_nav)
         self.MapaBtn = QtWidgets.QPushButton(self.navegacionFrame)
         self.MapaBtn.setObjectName("MapaBtn")
         self.horizontalLayout.addWidget(self.MapaBtn)
@@ -488,13 +704,19 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         self.verCamarasBtn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
-        self.verRegistrosBtn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
-        self.subirVideoBtn_nav.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
-        self.detallesRegistroBtn_nav.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
-        self.MapaBtn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
-        self.configuracionBtn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
+        self.verRegistrosBtn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
+        self.subirVideoBtn_nav.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.MapaBtn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
+        self.configuracionBtn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(6))
         self.salirBtn.clicked.connect(lambda: sys.exit())
+        self.agregarCamara1.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.agregarCamara2.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.agregarCamara3.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.agregarCamara4.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.agregarCamaraBtn.clicked.connect(self.agregarCamara)
         self.setupMapa()
+        self.setupMapaInteractivo()
+        self.cargar_camara_guardada()
         
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -504,6 +726,18 @@ class Ui_MainWindow(object):
         self.agregarCamara2.setText(_translate("MainWindow", "+"))
         self.agregarCamara3.setText(_translate("MainWindow", "+"))
         self.agregarCamara4.setText(_translate("MainWindow", "+"))
+        self.agregarCamaraTitulo.setText(_translate("MainWindow", "Agregar Camara"))
+        self.configuracionRTSP_2.setTitle(_translate("MainWindow", "Configuración RTSP Predeterminada"))
+        self.direccionIpLabel.setText(_translate("MainWindow", "Dirección IP:"))
+        self.direccionIpEdit.setPlaceholderText(_translate("MainWindow", "192.168.1.30"))
+        self.rtspPuertoLabel_2.setText(_translate("MainWindow", "Puerto RTSP Predeterminado:"))
+        self.rtspPuertoEdit_2.setText(_translate("MainWindow", "554"))
+        self.usuarioPredeterminadoLabel_2.setText(_translate("MainWindow", "Usuario:"))
+        self.usuarioEdit.setText(_translate("MainWindow", "admin"))
+        self.passwordPredeterminadoLabel_2.setText(_translate("MainWindow", "Contraseña:"))
+        self.passwordEdit.setText(_translate("MainWindow", "admin"))
+        self.ubicacionCamaraGeneral.setTitle(_translate("MainWindow", "Ubicacion De la Camara"))
+        self.agregarCamaraBtn.setText(_translate("MainWindow", "Agregar Camara"))
         self.registrosTitulo.setText(_translate("MainWindow", "Vista de Registros"))
         self.verDetallesRegistroBtn.setText(_translate("MainWindow", "Ver Detalles del Registro Seleccionado"))
         self.detallesTitulo.setText(_translate("MainWindow", "Detalles del Registro"))
@@ -520,7 +754,7 @@ class Ui_MainWindow(object):
         self.subirVideoTitulo.setText(_translate("MainWindow", "Subir Video"))
         self.archivoSeleccionadoLabel.setText(_translate("MainWindow", "Ningún archivo seleccionado"))
         self.seleccionarVideoBtn.setText(_translate("MainWindow", "Seleccionar Video..."))
-        self.subirVideoBtn.setText(_translate("MainWindow", "Subir Video"))
+        self.subirVideoBtn.setText(_translate("MainWindow", "Continuar"))
         self.cancelarSubidaBtn.setText(_translate("MainWindow", "Cancelar"))
         self.vistaPreviaVideo.setText(_translate("MainWindow", "Vista previa del video"))
         self.grupoDetecciones.setTitle(_translate("MainWindow", "Detecciones"))
@@ -550,7 +784,6 @@ class Ui_MainWindow(object):
         self.verCamarasBtn.setText(_translate("MainWindow", "Ver Cámaras"))
         self.verRegistrosBtn.setText(_translate("MainWindow", "Ver Registros"))
         self.subirVideoBtn_nav.setText(_translate("MainWindow", "Subir Video"))
-        self.detallesRegistroBtn_nav.setText(_translate("MainWindow", "Detalles de Registro"))
         self.MapaBtn.setText(_translate("MainWindow", "Mapa"))
         self.configuracionBtn.setText(_translate("MainWindow", "Configuración"))
         self.salirBtn.setText(_translate("MainWindow", "Salir"))
@@ -558,45 +791,423 @@ class Ui_MainWindow(object):
 
 
     def setupMapa(self):
-      from PyQt5 import QtWebEngineWidgets, QtWidgets
+        from PyQt5 import QtWebEngineWidgets, QtWidgets
 
-      # Crear el QWebEngineView
-      self.webview = QtWebEngineWidgets.QWebEngineView(self.mapaWidget)
+        # Consulta la cámara para obtener latitud/longitud
+        cam = self.consultar_camara()
+        if not cam:
+            print("No se encontró cámara para mostrar en el mapa.")
+            return
 
-      # Crear un layout para que el webview ocupe todo el espacio del mapaWidget
-      layout = QtWidgets.QVBoxLayout(self.mapaWidget)
-      layout.setContentsMargins(0, 0, 0, 0)  # Sin márgenes
-      layout.addWidget(self.webview)
+        lat = float(cam['latitud'])
+        lon = float(cam['longitud'])
 
-      # HTML para mostrar el mapa
-      html = '''
-      <!DOCTYPE html>
-      <html>
-      <head>
+        # Crear el QWebEngineView dentro de mapaWidget
+        self.webview = QtWebEngineWidgets.QWebEngineView(self.mapaWidget)
+        layout = QtWidgets.QVBoxLayout(self.mapaWidget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.webview)
+
+        # HTML con Leaflet, centrándose en la cámara y añadiendo un marker
+        html = f'''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8" />
+            <title>Mapa Cámara</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+            <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+            <style>
+                html, body, #map {{
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                }}
+            </style>
+        </head>
+        <body>
+            <div id="map"></div>
+            <script>
+                // Inicializar mapa centrado en la cámara
+                var cameraLat = {lat};
+                var cameraLon = {lon};
+                var map = L.map('map').setView([cameraLat, cameraLon], 16);
+
+                // Capa base
+                L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                    attribution: 'Map data © OpenStreetMap contributors'
+                }}).addTo(map);
+
+                // Añadir marcador para la cámara
+                L.marker([cameraLat, cameraLon])
+                  .addTo(map)
+                  .bindPopup('Cámara ID: {cam["id"]}')
+                  .openPopup();
+            </script>
+        </body>
+        </html>
+        '''
+
+        # Cargar el HTML en el webview
+        self.webview.setHtml(html)
+
+
+    def setupMapaInteractivo(self):
+        from PyQt5 import QtWebEngineWidgets, QtWidgets
+
+        layout = QtWidgets.QVBoxLayout(self.mapaCamaraWidget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.webview = QtWebEngineWidgets.QWebEngineView(self.mapaCamaraWidget)
+        layout.addWidget(self.webview)
+        self.webview.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                   QtWidgets.QSizePolicy.Expanding)
+
+        html = '''
+        <!DOCTYPE html>
+        <html><head>
           <meta charset="utf-8" />
           <title>Mapa Bogotá</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
           <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-          <style>
-              html, body, #map {
-                  height: 100%;
-                  margin: 0;
-                  padding: 0;
-              }
-          </style>
-      </head>
-      <body>
+          <style> html, body, #map { height:100%; margin:0; padding:0; } </style>
+        </head><body>
           <div id="map"></div>
           <script>
-              var map = L.map('map').setView([4.7110, -74.0721], 13);  // Bogotá, Colombia
-              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                  attribution: 'Map data © OpenStreetMap contributors'
-              }).addTo(map);
-          </script>
-      </body>
-      </html>
-      '''
+            var marker = null;
+            var map = L.map('map').setView([4.7110, -74.0721], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: 'Map data © OpenStreetMap contributors'
+            }).addTo(map);
 
-      # Establecer el HTML al webview
-      self.webview.setHtml(html)
+            map.on('click', function(e) {
+              var lat = e.latlng.lat, lng = e.latlng.lng;
+              if (marker) map.removeLayer(marker);
+              marker = L.marker([lat, lng]).addTo(map);
+            });
+
+            // Función que Python invoca para obtener coords
+            function getLastLatLng() {
+              if (!marker) return null;
+              return { lat: marker.getLatLng().lat, lng: marker.getLatLng().lng };
+            }
+          </script>
+        </body></html>
+        '''
+
+        self.webview.setHtml(html)
+        self.mapaCamaraWidget.resizeEvent = self.adjust_map_size
+
+    def adjust_map_size(self, event):
+        # Ajustar el tamaño del webview al tamaño del widget contenedor
+        self.webview.resize(self.mapaCamaraWidget.size())
+
+    def agregarCamara(self):
+        # 1) Leer campos
+        ip   = self.direccionIpEdit.text().strip()
+        port = self.rtspPuertoEdit_2.text().strip()
+        user = self.usuarioEdit.text().strip()
+        pwd  = self.passwordEdit.text().strip()
+
+        if not all([ip, port, user, pwd]):
+            QtWidgets.QMessageBox.warning(None, "Datos incompletos",
+                "Debes llenar IP, puerto, usuario y contraseña.")
+            return
+
+        # 2) Ejecutar JS para obtener coordenadas desde el mapa
+        self.webview.page().runJavaScript("getLastLatLng();", lambda res: self._onGotCoords(res, ip, port, user, pwd))
+        
+    def _onGotCoords(self, res, ip, port, user, pwd):
+        print("Entró a _onGotCoords")
+        if not res:
+            print("No hay coordenadas, muestra advertencia y sale")
+            QtWidgets.QMessageBox.warning(
+                None,
+                "Sin ubicación",
+                "Primero selecciona la posición en el mapa."
+            )
+            return
+
+        lat = res['lat']
+        lng = res['lng']
+        print(f"Latitud recibida: {lat} ({type(lat)})")
+        print(f"Longitud recibida: {lng} ({type(lng)})")
+
+        puerto = str(port)  # 🔧 Asegúrate de que sea string
+
+        rtsp_url = f"rtsp://{user}:{pwd}@{ip}:{puerto}/Streaming/Channels/101"
+        print(f"URL RTSP construida: {rtsp_url}")
+
+        # Guardar en base de datos
+        guardar_camara(ip, puerto, user, pwd, lat, lng, rtsp_url)
+        
+        QtWidgets.QMessageBox.information(
+            None,
+            "URL RTSP",
+            f"Intentando conectar a:\n{rtsp_url}"
+        )
+
+        try:
+            print("Preparando layout de camara1Frame")
+            if not self.camara1Frame.layout():
+                print("No hay layout, creando uno nuevo QVBoxLayout")
+                self.camara1Frame.setLayout(QtWidgets.QVBoxLayout())
+
+            layout1 = self.camara1Frame.layout()
+            for i in reversed(range(layout1.count())):
+                w = layout1.itemAt(i).widget()
+                if w:
+                    print("Eliminando widget previo del layout")
+                    w.setParent(None)
+
+            print("Creando QLabel para video en camara1Frame")
+            self.video_label = QtWidgets.QLabel()
+            # 1) Política expansiva para ocupar todo el espacio
+            self.video_label.setSizePolicy(
+                QtWidgets.QSizePolicy.Expanding,
+                QtWidgets.QSizePolicy.Expanding
+            )
+            # 2) Tamaño mínimo para que el escalado funcione correctamente
+            self.video_label.setMinimumSize(1, 1)
+            # 3) Centrar el contenido del video dentro del QLabel
+            self.video_label.setAlignment(QtCore.Qt.AlignCenter)
+            # 4) Fondo negro (sin setScaledContents aquí)
+            self.video_label.setStyleSheet("background-color: black;")
+            layout1.addWidget(self.video_label)
+
+            # Iniciar o reutilizar el stream RTSP para camara1Frame sin agrandar el frame
+            if hasattr(self, 'rtsp_thread') and self.rtsp_thread and self.rtsp_thread.isRunning():
+                print("Hilo RTSP ya corriendo, solo reconectando señal para camara1Frame")
+                try:
+                    self.rtsp_thread.change_pixmap.disconnect()
+                except Exception:
+                    pass
+                self.rtsp_thread.change_pixmap.connect(
+                    lambda img: self.video_label.setPixmap(
+                        QtGui.QPixmap.fromImage(img)
+                            .scaled(
+                                self.video_label.size(),
+                                QtCore.Qt.KeepAspectRatio,
+                                QtCore.Qt.SmoothTransformation
+                            )
+                    )
+                )
+            else:
+                print("Iniciando nuevo hilo RTSP")
+                self._start_rtsp_stream(rtsp_url, self.video_label)
+
+        except Exception:
+            err_text = traceback.format_exc()
+            print("Error al preparar o iniciar stream:")
+            print(err_text)
+            QtWidgets.QMessageBox.critical(
+                None,
+                "Error al iniciar Stream",
+                f"{err_text}"
+            )
+            return
+
+        self.camara1Frame.mouseDoubleClickEvent = self._onCam1DoubleClick
+        print("Se asignó evento mouseDoubleClick a camara1Frame")
+
+        QtWidgets.QMessageBox.information(
+            None,
+            "¡Éxito!",
+            f"Cámara conectada y reproducida en camara1Frame.\n"
+            f"Ubicación: ({lat:.5f}, {lng:.5f})"
+        )
+        print("Fin de _onGotCoords")
+
+
+    def _start_rtsp_stream(self, rtsp_url, target_label):
+        print(f"Entró a _start_rtsp_stream con URL: {rtsp_url}")
+        if hasattr(self, 'rtsp_thread') and self.rtsp_thread and self.rtsp_thread.isRunning():
+            print("Deteniendo hilo RTSP anterior")
+            self.rtsp_thread.stop()
+
+        # Asegúrate de que StreamThread esté bien definida y fuera de cualquier método
+        self.rtsp_thread = StreamThread(rtsp_url)
+
+        # Conectar las señales correctamente
+        self.rtsp_thread.change_pixmap.connect(
+            lambda img: self._update_video_label(img, target_label)
+        )
+
+        self.rtsp_thread.connection_failed.connect(
+            lambda msg: QtWidgets.QMessageBox.critical(None, "Error de conexión RTSP", msg)
+        )
+
+        self.rtsp_thread.start()
+        print("Hilo RTSP iniciado")
+
+    def _update_video_label(self, img, label):
+        """Función centralizada para actualizar etiquetas de video con mejor rendimiento"""
+        pixmap = QtGui.QPixmap.fromImage(img)
+
+        # Optimización: solo escalar si es necesario
+        if pixmap.width() > label.width() or pixmap.height() > label.height():
+            pixmap = pixmap.scaled(
+                label.size(),
+                QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.SmoothTransformation
+            )
+
+        label.setPixmap(pixmap)
+
+
+    def _onCam1DoubleClick(self, event):
+        print("Doble click en camara1Frame detectado")
+        if event.button() != QtCore.Qt.LeftButton:
+            print("No es click izquierdo, ignora")
+            return
+
+        self.stackedWidget.setCurrentIndex(7)
+        print("Cambiado stackedWidget a índice 7")
+
+        if not self.videoFrame_2.layout():
+            print("Creando layout para videoFrame_2")
+            self.videoFrame_2.setLayout(QtWidgets.QVBoxLayout())
+
+        layout2 = self.videoFrame_2.layout()
+        for i in reversed(range(layout2.count())):
+            w = layout2.itemAt(i).widget()
+            if w:
+                print("Eliminando widget previo de videoFrame_2")
+                w.setParent(None)
+
+        print("Creando QLabel para videoFrame_2")
+        self.video_label_2 = QtWidgets.QLabel()
+        self.video_label_2.setStyleSheet("background-color: black;")
+        self.video_label_2.setAlignment(QtCore.Qt.AlignCenter)  # Centrar contenido
+        self.video_label_2.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored)
+        layout2.addWidget(self.video_label_2)
+
+        print("Asignando evento mouseDoubleClick a video_label_2 para volver a camara1Frame")
+        self.video_label_2.mouseDoubleClickEvent = self._onVideoLabel2DoubleClick
+
+        print("Reusando hilo RTSP y reconectando señal para videoFrame_2")
+        try:
+            if hasattr(self, 'rtsp_thread') and self.rtsp_thread and self.rtsp_thread.isRunning():
+                try:
+                    self.rtsp_thread.change_pixmap.disconnect()
+                except Exception:
+                    pass
+                self.rtsp_thread.change_pixmap.connect(
+                    lambda img: self._update_video_label(img, self.video_label_2)
+                )
+            else:
+                print("No hay hilo RTSP activo, no se puede mostrar videoFrame_2")
+        except Exception as e:
+            print(f"Error reconectando señal: {e}")
+
+        print("Fin de _onCam1DoubleClick")
+
+
+    def _onVideoLabel2DoubleClick(self, event):
+        print("Doble click en video_label_2 detectado")
+        if event.button() != QtCore.Qt.LeftButton:
+            print("No es click izquierdo, ignora")
+            return
+
+        self.stackedWidget.setCurrentIndex(0)
+        print("Cambiado stackedWidget a índice 0")
+
+        if not self.camara1Frame.layout():
+            print("No hay layout en camara1Frame, creando uno")
+            self.camara1Frame.setLayout(QtWidgets.QVBoxLayout())
+
+        layout1 = self.camara1Frame.layout()
+        for i in reversed(range(layout1.count())):
+            w = layout1.itemAt(i).widget()
+            if w:
+                print("Eliminando widget previo en camara1Frame")
+                w.setParent(None)
+
+        print("Creando QLabel para video en camara1Frame")
+        self.video_label = QtWidgets.QLabel()
+        self.video_label.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.video_label.setMinimumSize(1, 1)
+        self.video_label.setStyleSheet("background-color: black;")
+        self.video_label.setAlignment(QtCore.Qt.AlignCenter)  # Centrar contenido
+        layout1.addWidget(self.video_label)
+
+        print("Reusando hilo RTSP y reconectando señal para camara1Frame")
+        try:
+            if hasattr(self, 'rtsp_thread') and self.rtsp_thread and self.rtsp_thread.isRunning():
+                try:
+                    self.rtsp_thread.change_pixmap.disconnect()
+                except Exception:
+                    pass
+                self.rtsp_thread.change_pixmap.connect(
+                    lambda img: self._update_video_label(img, self.video_label)
+                )
+            else:
+                print("No hay hilo RTSP activo para mostrar en camara1Frame")
+        except Exception as e:
+            print(f"Error reconectando señal: {e}")
+
+        self.camara1Frame.mouseDoubleClickEvent = self._onCam1DoubleClick
+        print("Evento mouseDoubleClick reasignado a camara1Frame")
+
+        print("Fin de _onVideoLabel2DoubleClick")
+
+
+    def _onVerCamarasClicked(self):
+        print("Botón verCamaras presionado, volviendo a índice 0 y mostrando camara1Frame")
+
+        self.stackedWidget.setCurrentIndex(0)
+
+        try:
+            if not hasattr(self, 'last_rtsp_url'):
+                print("No se encontró URL RTSP previa para mostrar stream.")
+                return
+
+            if not self.camara1Frame.layout():
+                print("No hay layout en camara1Frame, creando uno")
+                self.camara1Frame.setLayout(QtWidgets.QVBoxLayout())
+
+            layout1 = self.camara1Frame.layout()
+            for i in reversed(range(layout1.count())):
+                w = layout1.itemAt(i).widget()
+                if w:
+                    print("Eliminando widget previo en camara1Frame")
+                    w.setParent(None)
+
+            print("Creando QLabel para video en camara1Frame")
+            self.video_label = QtWidgets.QLabel()
+            self.video_label.setSizePolicy(
+                QtWidgets.QSizePolicy.Expanding,
+                QtWidgets.QSizePolicy.Expanding
+            )
+            self.video_label.setMinimumSize(1, 1)
+            self.video_label.setAlignment(QtCore.Qt.AlignCenter)
+            self.video_label.setStyleSheet("background-color: black;")
+            layout1.addWidget(self.video_label)
+
+            print("Reusando hilo RTSP y reconectando señal para camara1Frame")
+            if hasattr(self, 'rtsp_thread') and self.rtsp_thread and self.rtsp_thread.isRunning():
+                try:
+                    self.rtsp_thread.change_pixmap.disconnect()
+                except Exception:
+                    pass
+                self.rtsp_thread.change_pixmap.connect(
+                    lambda img: self._update_video_label(img, self.video_label)
+                )
+            else:
+                print("No hay hilo RTSP activo para mostrar en camara1Frame")
+                self._start_rtsp_stream(self.last_rtsp_url, self.video_label)
+
+            self.camara1Frame.mouseDoubleClickEvent = self._onCam1DoubleClick
+            print("Evento mouseDoubleClick reasignado a camara1Frame")
+
+        except Exception:
+            err_text = traceback.format_exc()
+            print("Error al mostrar stream en camara1Frame:")
+            print(err_text)
+            QtWidgets.QMessageBox.critical(
+                None,
+                "Error al mostrar Stream",
+                f"{err_text}"
+            )
+

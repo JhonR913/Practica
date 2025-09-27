@@ -13,11 +13,11 @@ class AccidentDetector:
                  output_dir: str = 'detected_clips',
                  callback=None,
                  consecutive_threshold: int = 10,
-                 confidence_threshold: float = 0.5,
+                 confidence_threshold: float = 0.3,
                  snapshot_cooldown: float = 5.0,   # segundos entre snapshots
                  device: str = "auto",
                  update_label_callback=None,
-                 retrain_dir: str = r'C:\Users\jhonr\Desktop\proyecto_deteccion\yolov8'):
+                 retrain_dir: str = r'C:\Users\Ramirez\Desktop\proyecto_deteccion\yolov8'):
 
         if model_path is None:
             model_path = select_model_file()
