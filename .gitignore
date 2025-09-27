@@ -7,3 +7,4 @@ yolov8/valid/images/*
 yolov8/valid/labels/*
 yolov8/test/images/*
 yolov8/test/labels/*
+grabaciones/*.mp4
