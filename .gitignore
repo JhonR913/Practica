@@ -8,4 +8,7 @@ yolov8/valid/labels/*
 yolov8/test/images/*
 yolov8/test/labels/*
 grabaciones/
+grabaciones/*.mp4
+grabaciones/*.avi
+grabaciones/*.mkv
 
